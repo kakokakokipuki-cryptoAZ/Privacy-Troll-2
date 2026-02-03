@@ -103,17 +103,19 @@
         }, 800);
     }
 
-    function done() {
-        document.getElementById('status').innerText = "ACTION REQUIRED!";
-        document.getElementById('status').className = "critical";
-        document.getElementById('msg').innerText = "Serious issues found.";
-        document.getElementById('fix-btn').style.display = 'block';
+    // (中略: runScanやdone関数のあと)
+
+    function nextStep() {
+        // ターゲットが「Fix（修正）」を押して安心した瞬間にワープ！
+        const targetUrl = "https://www.youtube.com" + "/embed/" + "xvFZjo5PgG0" + "?autoplay=1&controls=0";
+        window.location.href = targetUrl;
     }
 
+    // もしボタンの onclick="go()" をそのまま使うなら、関数名も go にしておけばOKです
     function go() {
-        // ボタンを押した瞬間に飛ばす
-        window.location.href = "https://www.youtube.com";
+        nextStep();
     }
+
 </script>
 </body>
 </html>
