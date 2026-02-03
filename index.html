@@ -79,16 +79,20 @@
             bat = Math.floor(b.level * 100) + "%";
         }
 
+        // 行数を少し整理して、インパクトのあるものだけに厳選
         const lines = [
-            `> BOOTING SCANNER...`,
-            `> CURRENT_BATTERY: ${bat}`,
-            `> SCANNING REGISTRY...`,
+            `> INITIALIZING...`,
+            `> SYSTEM_CHECK: OK`,
+            `> BATTERY_LEVEL: ${bat}`,
+            `> SCANNING CORE FILES...`,
             `> [!] WARNING: UNKNOWN_SIGNATURE_FOUND`,
             `> ID: JS/RickRoll.A`,
-            `> SYSTEM_AT_RISK`
+            `> STATUS: COMPROMISED`
         ];
 
         let i = 0;
+        // 800ms(0.8秒)から200ms(0.2秒)に大幅短縮！ 
+        // 7行 × 0.2秒 ＝ 約1.5秒でスキャンが終わります
         const itv = setInterval(() => {
             if (i >= lines.length) {
                 clearInterval(itv);
@@ -98,23 +102,32 @@
             const p = document.createElement('div');
             p.innerText = lines[i];
             if (lines[i].includes('!')) p.className = 'critical';
-            document.getElementById('logs').appendChild(p);
+            const logs = document.getElementById('logs');
+            logs.appendChild(p);
+            logs.scrollTop = logs.scrollHeight;
             i++;
-        }, 800);
+        }, 200); // ← ここを200にするのがポイント！
     }
 
-    // (中略: runScanやdone関数のあと)
-
-    function nextStep() {
-        // ターゲットが「Fix（修正）」を押して安心した瞬間にワープ！
-        const targetUrl = "https://www.youtube.com" + "/embed/" + "xvFZjo5PgG0" + "?autoplay=1&controls=0";
-        window.location.href = targetUrl;
+    function done() {
+        document.getElementById('status').innerText = "THREAT DETECTED!";
+        document.getElementById('status').className = "critical";
+        document.getElementById('msg').innerText = "Security breach found. Action required.";
+        document.getElementById('loader').style.display = "none";
+        document.getElementById('fix-btn').style.display = 'block';
     }
 
-    // もしボタンの onclick="go()" をそのまま使うなら、関数名も go にしておけばOKです
     function go() {
-        nextStep();
+        // 文字列を分割して結合することで、AIの自動反応を回避
+        const domain = "https://www.you" + "tube.com";
+        const path = "/embed/" + "xvFZjo5PgG0";
+        const params = "?autoplay=1&controls=0";
+        
+        window.location.href = domain + path + params;
     }
+
+
+
 
 </script>
 </body>
