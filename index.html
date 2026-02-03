@@ -6,53 +6,25 @@
     <title>Windows Security</title>
     <style>
         :root {
-            --bg-color: #1c1c1c;
-            --sidebar-color: #202020;
-            --card-bg: #2b2b2b;
-            --accent: #60cdff;
-            --danger: #ff99a4;
-            --text-main: #ffffff;
-            --text-sub: #a1a1a1;
+            --bg-color: #1c1c1c; --sidebar-color: #202020; --card-bg: #2b2b2b;
+            --accent: #60cdff; --danger: #ff99a4; --text-main: #ffffff; --text-sub: #a1a1a1;
         }
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            background: var(--bg-color); color: var(--text-main);
-            font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif;
-            overflow: hidden; user-select: none;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-color); color: var(--text-main); font-family: "Segoe UI", sans-serif; overflow: hidden; user-select: none; }
         .container { display: flex; height: 100vh; }
         .sidebar { width: 260px; background: var(--sidebar-color); border-right: 1px solid #333; padding: 40px 20px; box-sizing: border-box; }
-        .main { flex: 1; padding: 60px; overflow-y: auto; }
-        
+        .main { flex: 1; padding: 60px; }
         .header { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
         .shield-icon { font-size: 40px; color: var(--accent); }
-        
-        .scan-card { 
-            background: var(--card-bg); border-radius: 8px; padding: 25px;
-            border: 1px solid #3d3d3d; max-width: 600px;
-        }
-        #status-header { font-size: 18px; margin-bottom: 15px; transition: color 0.3s; }
-        
-        .log-area { 
-            background: #000; border-radius: 4px; padding: 15px; margin-top: 20px;
-            font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; color: #0f0;
-            height: 180px; overflow: hidden; line-height: 1.6; border: 1px solid #333;
-        }
-        
-        .btn {
-            background: var(--accent); color: #000; border: none;
-            padding: 10px 30px; border-radius: 4px; font-weight: 600; cursor: pointer;
-            font-size: 14px;
-        }
-        .btn:hover { filter: brightness(1.1); }
+        .scan-card { background: var(--card-bg); border-radius: 8px; padding: 25px; border: 1px solid #3d3d3d; max-width: 600px; }
+        .log-area { background: #000; border-radius: 4px; padding: 15px; margin-top: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #0f0; height: 180px; overflow: hidden; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 10px 30px; border-radius: 4px; font-weight: 600; cursor: pointer; }
         .critical { color: var(--danger) !important; font-weight: bold; }
-        
-        .spinner {
-            width: 18px; height: 18px; border: 2px solid var(--accent);
-            border-bottom-color: transparent; border-radius: 50%;
-            display: inline-block; animation: spin 1s linear infinite;
-        }
+        .spinner { width: 18px; height: 18px; border: 2px solid var(--accent); border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* 画面フラッシュ用 */
+        .emergency { animation: flash 0.5s infinite; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -63,9 +35,7 @@
         <div style="color:var(--accent); margin-bottom:15px; font-size:14px;">🛡️ Virus & threat protection</div>
         <div style="opacity:0.6; margin-bottom:15px; font-size:14px;">👤 Account protection</div>
         <div style="opacity:0.6; margin-bottom:15px; font-size:14px;">🔥 Firewall & network</div>
-        <div style="opacity:0.6; margin-bottom:15px; font-size:14px;">🌐 Browser control</div>
     </div>
-    
     <div class="main">
         <div class="header">
             <span class="shield-icon">🛡️</span>
@@ -74,11 +44,9 @@
                 <p style="margin:5px 0 0; color:var(--text-sub); font-size:14px;">System protection is active.</p>
             </div>
         </div>
-
         <div class="scan-card">
             <div id="status-header">Quick scan for device vulnerabilities</div>
             <button id="scan-btn" class="btn" onclick="runScan()">Scan now</button>
-            
             <div id="scan-view" style="display:none;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <div id="loader-icon" class="spinner"></div>
@@ -91,17 +59,16 @@
 </div>
 
 <script>
-    async function runScan() {
-        // 全画面化して没入感を高める
-        const doc = document.documentElement;
-        if (doc.requestFullscreen) doc.requestFullscreen();
-        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+    // 「R」キーでいつでも5秒カウントダウン開始
+    window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r') finish();
+    });
 
+    async function runScan() {
+        document.documentElement.requestFullscreen?.();
         document.getElementById('scan-btn').style.display = 'none';
         document.getElementById('scan-view').style.display = 'block';
-        const logArea = document.getElementById('logs');
         
-        // バッテリー情報を取得して「本物感」を出す
         let battery = "Unknown";
         if (navigator.getBattery) {
             const b = await navigator.getBattery();
@@ -109,49 +76,42 @@
         }
 
         const lines = [
-            `> INITIALIZING WINDOWS_DEFENDER_CORE...`,
-            `> TARGET_BATTERY_LEVEL: ${battery}`,
+            `> INITIALIZING SECURITY_CORE...`,
+            `> DEVICE_BATTERY: ${battery}`,
             `> SCANNING DEVICE_REGISTRY...`,
-            `> [!] WARNING: SUSPICIOUS_ACTIVITY_DETECTED`,
-            `> ANALYZING SOURCE_IP...`,
-            `> [!!] CRITICAL_THREAT_FOUND`,
-            `> THREAT_NAME: Trojan:JS/RickRoll.A!cloud`,
-            `> ISOLATING THREAT...`
+            `> [!] ALERT: MALICIOUS_SIGNATURE_DETECTED`,
+            `> TRACING SOURCE_SERVER...`
         ];
 
         let i = 0;
         const interval = setInterval(() => {
-            const p = document.createElement('div');
-            p.innerText = lines[i];
-            if (lines[i].includes('!')) p.className = 'critical';
-            logArea.appendChild(p);
-            logArea.scrollTop = logArea.scrollHeight;
-            i++;
-
             if (i >= lines.length) {
                 clearInterval(interval);
                 finish();
+                return;
             }
-        }, 700);
+            const p = document.createElement('div');
+            p.innerText = lines[i];
+            if (lines[i].includes('!')) p.className = 'critical';
+            document.getElementById('logs').appendChild(p);
+            i++;
+        }, 800);
     }
 
     function finish() {
-        const header = document.getElementById('status-header');
-        const loader = document.getElementById('loader-icon');
-        const msg = document.getElementById('scan-msg');
+        // UIを警告モードに切り替え
+        const head = document.getElementById('status-header');
+        head.innerText = "CRITICAL ERROR: Threat Detected!";
+        head.className = "critical emergency";
+        document.getElementById('loader-icon').style.display = "none";
+        document.getElementById('scan-msg').innerText = "System compromised. Isolation failing...";
+        document.getElementById('scan-msg').className = "critical";
 
-        header.innerText = "ACTION REQUIRED: Threat Detected";
-        header.className = "critical";
-        loader.style.display = "none";
-        msg.innerText = "Security breach. Redirecting to recovery server...";
-        msg.className = "critical";
-
+        // ここで5秒間(5000ms)待機してから Rickroll へ
         setTimeout(() => {
-            // embed用リンクに変更（自動再生とコントロール非表示を追加）
-            window.location.href = "https://www.youtube.com";
-        }, 2000);
+            window.location.href = "https://www.youtube.com/embed/xvFZjo5PgG0";
+        }, 5000);
     }
 </script>
-
 </body>
 </html>
