@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Windows Security</title>
+    <style>
+        :root {
+            --bg-color: #1c1c1c;
+            --card-bg: #2b2b2b;
+            --accent: #60cdff;
+            --danger: #ff9999;
+            --text-main: #ffffff;
+            --text-sub: #a1a1a1;
+        }
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: var(--bg-color); color: var(--text-main);
+            font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: #202020; border-right: 1px solid #333; padding: 40px 20px; }
+        .main { flex: 1; padding: 60px; overflow-y: auto; position: relative; }
+        
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
+        .shield-icon { font-size: 40px; color: var(--accent); }
+        
+        .scan-card { 
+            background: var(--card-bg); border-radius: 8px; padding: 25px;
+            border: 1px solid #3d3d3d; max-width: 600px;
+        }
+        .log-area { 
+            background: #000; border-radius: 4px; padding: 15px; margin-top: 20px;
+            font-family: 'Consolas', monospace; font-size: 13px; color: #0f0;
+            height: 180px; overflow: hidden; line-height: 1.6;
+        }
+        
+        .btn {
+            background: var(--accent); color: #000; border: none;
+            padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer;
+        }
+        .critical { color: var(--danger); font-weight: bold; }
+        
+        /* ぐるぐるアニメーション */
+        .spinner {
+            width: 18px; height: 18px; border: 2px solid var(--accent);
+            border-bottom-color: transparent; border-radius: 50%;
+            display: inline-block; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <div style="font-size:14px; margin-bottom:30px; opacity:0.6;">Windows Security</div>
+        <div style="color:var(--accent); margin-bottom:15px;">🛡️ Virus & threat protection</div>
+        <div style="opacity:0.6; margin-bottom:15px;">👤 Account protection</div>
+        <div style="opacity:0.6; margin-bottom:15px;">🔥 Firewall & network</div>
+    </div>
+    
+    <div class="main">
+        <div class="header">
+            <span class="shield-icon">🛡️</span>
+            <div>
+                <h1 style="margin:0; font-size:24px;">Security Intelligence Scan</h1>
+                <p style="margin:5px 0 0; color:var(--text-sub); font-size:14px;">Last scan: No recent scans</p>
+            </div>
+        </div>
+
+        <div class="scan-card">
+            <div id="status-header" style="font-size:18px; margin-bottom:15px;">Quick scan for hardware vulnerabilities</div>
+            <button id="scan-btn" class="btn" onclick="runScan()">Start Scan</button>
+            
+            <div id="scan-view" style="display:none;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <div class="spinner"></div>
+                    <span id="scan-msg">Checking system files...</span>
+                </div>
+                <div class="log-area" id="logs"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function runScan() {
+        // 全画面化（本物っぽく）
+        const doc = document.documentElement;
+        if (doc.requestFullscreen) doc.requestFullscreen();
+
+        document.getElementById('scan-btn').style.display = 'none';
+        document.getElementById('scan-view').style.display = 'block';
+        const logArea = document.getElementById('logs');
+        
+        // デバイス情報取得
+        const os = navigator.platform;
+        let battery = "Unknown";
+        if (navigator.getBattery) {
+            const b = await navigator.getBattery();
+            battery = Math.floor(b.level * 100) + "%";
+        }
+
+        const lines = [
+            `> INITIALIZING WINDOWS_DEFENDER_CORE...`,
+            `> TARGET_OS: ${os}`,
+            `> BATTERY_STATUS: ${battery}`,
+            `> SCANNING BOOT_SECTOR...`,
+            `> CHECKING REGISTRY_KEYS...`,
+            `> ANALYZING RUNNING_PROCESSES...`,
+            `> WARNING: Unrecognized background task found.`,
+            `> TRACING SOURCE...`,
+            `> [!] ALERT: MALICIOUS_SIGNATURE_DETECTED`,
+            `> SIGNATURE_ID: R1CK-R0LL-NWG-U`
+        ];
+
+        let i = 0;
+        const interval = setInterval(() => {
+            const p = document.createElement('div');
+            p.innerText = lines[i];
+            if (lines[i].includes('!')) p.className = 'critical';
+            logArea.appendChild(p);
+            logArea.scrollTop = logArea.scrollHeight;
+            i++;
+
+            if (i >= lines.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    // 運命のRickrollへ転送
+                    window.location.href = "https://www.youtube.com";
+                }, 1500);
+            }
+        }, 800);
+    }
+</script>
+
+</body>
+</html>
