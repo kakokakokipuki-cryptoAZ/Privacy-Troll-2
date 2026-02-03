@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows Security</title>
     <style>
         :root {
@@ -17,12 +16,14 @@
         .shield-icon { font-size: 40px; color: var(--accent); }
         .scan-card { background: var(--card-bg); border-radius: 8px; padding: 25px; border: 1px solid #3d3d3d; max-width: 600px; }
         .log-area { background: #000; border-radius: 4px; padding: 15px; margin-top: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #0f0; height: 180px; overflow: hidden; }
+        
         .btn { background: var(--accent); color: #000; border: none; padding: 10px 30px; border-radius: 4px; font-weight: 600; cursor: pointer; }
+        .btn-danger { background: #ff4d4d; color: white; margin-top: 20px; display: none; }
+        .btn:hover { filter: brightness(1.1); }
+        
         .critical { color: var(--danger) !important; font-weight: bold; }
         .spinner { width: 18px; height: 18px; border: 2px solid var(--accent); border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        /* 画面フラッシュ用 */
         .emergency { animation: flash 0.5s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
@@ -53,17 +54,14 @@
                     <span id="scan-msg" style="font-size:14px; color:var(--text-sub);">Analyzing hardware...</span>
                 </div>
                 <div class="log-area" id="logs"></div>
+                <!-- 💡 隠されていた削除ボタン -->
+                <button id="remove-btn" class="btn btn-danger" onclick="rickroll()">Remove threat (recommended)</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // 「R」キーでいつでも5秒カウントダウン開始
-    window.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 'r') finish();
-    });
-
     async function runScan() {
         document.documentElement.requestFullscreen?.();
         document.getElementById('scan-btn').style.display = 'none';
@@ -80,14 +78,15 @@
             `> DEVICE_BATTERY: ${battery}`,
             `> SCANNING DEVICE_REGISTRY...`,
             `> [!] ALERT: MALICIOUS_SIGNATURE_DETECTED`,
-            `> TRACING SOURCE_SERVER...`
+            `> THREAT_NAME: Trojan:JS/RickRoll.A!cloud`,
+            `> WAITING FOR USER ACTION...`
         ];
 
         let i = 0;
         const interval = setInterval(() => {
             if (i >= lines.length) {
                 clearInterval(interval);
-                finish();
+                showDanger();
                 return;
             }
             const p = document.createElement('div');
@@ -98,19 +97,21 @@
         }, 800);
     }
 
-    function finish() {
-        // UIを警告モードに切り替え
+    function showDanger() {
         const head = document.getElementById('status-header');
         head.innerText = "CRITICAL ERROR: Threat Detected!";
         head.className = "critical emergency";
         document.getElementById('loader-icon').style.display = "none";
-        document.getElementById('scan-msg').innerText = "System compromised. Isolation failing...";
+        document.getElementById('scan-msg').innerText = "Click below to sanitize your system.";
         document.getElementById('scan-msg').className = "critical";
+        
+        // 削除ボタンを表示
+        document.getElementById('remove-btn').style.display = "block";
+    }
 
-        // ここで5秒間(5000ms)待機してから Rickroll へ
-        setTimeout(() => {
-            window.location.href = "https://www.youtube.com/embed/xvFZjo5PgG0";
-        }, 5000);
+    function rickroll() {
+        // ボタンを押した瞬間に飛ばす！
+        window.location.href = "https://www.youtube.com";
     }
 </script>
 </body>
